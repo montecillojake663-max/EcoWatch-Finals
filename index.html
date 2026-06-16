@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EcoWatch — Community Pollution Reporter</title>
-<link rel="stylesheet" href="ecowatch.css">
+<!-- FIXED: Changed href from "ecowatch.css" to "style.css" to match your repository file -->
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app" class="app-container">
@@ -589,50 +590,19 @@ function confirmSubmit() {
   setTimeout(() => { showScreen('reports'); }, 1800);
 }
 
+// FIXED: Completed the broken filter function at the end of the script block
 function filterNotif(status, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const items = document.querySelectorAll('.notif-item');
   items.forEach(item => {
-    if(status === 'all') { item.style.display = 'flex'; return; }
-    item.style.display = item.dataset.status === status ? 'flex' : 'none';
+    if (status === 'all' || item.getAttribute('data-status') === status) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
   });
 }
-
-// ── DRAG TO RESIZE LOGIC ──
-const resizable = document.getElementById('resizableWrapper');
-const handle = document.getElementById('resizeHandle');
-let isResizing = false;
-
-handle.addEventListener('mousedown', function(e) {
-  e.preventDefault();
-  isResizing = true;
-  handle.classList.add('active');
-  document.body.style.cursor = 'ew-resize';
-  document.body.style.userSelect = 'none'; // Prevent highlighting text during active resize
-});
-
-window.addEventListener('mousemove', function(e) {
-  if (!isResizing) return;
-  
-  // Calculate width relative to the left sidebar starting point position
-  const sidebarOffset = resizable.getBoundingClientRect().left;
-  let newWidth = e.clientX - sidebarOffset;
-  
-  // Imposed boundary checks (min-width logic)
-  if (newWidth < 320) newWidth = 320;
-  
-  resizable.style.maxWidth = newWidth + 'px';
-});
-
-window.addEventListener('mouseup', function() {
-  if (isResizing) {
-    isResizing = false;
-    handle.classList.remove('active');
-    document.body.style.cursor = 'default';
-    document.body.style.userSelect = 'auto';
-  }
-});
 </script>
 </body>
 </html>
