@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EcoWatch — Community Pollution Reporter</title>
-<link rel="stylesheet" href="styles.css">
+<!-- Fixed CSS link to match your ecowatch.css file -->
+<link rel="stylesheet" href="ecowatch.css">
 </head>
 <body>
 <div id="app" class="app-container">
@@ -137,6 +138,7 @@
             <div class="map-pin" style="background:#ef4444;top:38%;left:30%"></div>
             <div class="map-pin" style="background:#f97316;top:55%;left:56%"></div>
             <div class="map-pin" style="background:#15803d;top:28%;left:68%"></div>
+            <div class="map-pin" style="background:#92400e;top:62%;left:42%"></div>
             <div class="map-pin" style="background:#92400e;top:62%;left:42%"></div>
             <div class="map-legend">
               <span><span class="legend-dot" style="background:#ef4444"></span>Pending</span>
@@ -366,7 +368,7 @@
           </div>
         </div>
         <div class="notif-list" id="notif-list">
-          <div class="notif-item" data-status="new">
+          <div class="notif-item" data-status="pending">
             <div class="notif-avatar" style="background:#7c6f5a">MS</div>
             <div class="notif-content">
               <div class="notif-title">Your report was received</div>
@@ -375,7 +377,7 @@
             </div>
             <div class="notif-right"><span class="badge new">New</span><button class="notif-more" onclick="alert('Options: Delete, Mute')">⋯</button></div>
           </div>
-          <div class="notif-item" data-status="new">
+          <div class="notif-item" data-status="progress">
             <div class="notif-avatar" style="background:#8b7355">BR</div>
             <div class="notif-content">
               <div class="notif-title">Official responded to your report</div>
@@ -384,7 +386,7 @@
             </div>
             <div class="notif-right"><span class="badge new">New</span><button class="notif-more" onclick="alert('Options: Delete, Mute')">⋯</button></div>
           </div>
-          <div class="notif-item" data-status="new">
+          <div class="notif-item" data-status="all">
             <div class="notif-avatar" style="background:#6b8e6b">CC</div>
             <div class="notif-content">
               <div class="notif-title">New community discussion</div>
@@ -584,69 +586,48 @@ function closeModal() {
 function confirmSubmit() {
   closeModal();
   const banner = document.getElementById('form-banner');
-  banner.className = 'success-banner';
-  banner.innerHTML = '✅ Report has been submitted';
-  banner.style.display = 'flex';
-  // Reset selections
-  document.querySelectorAll('.pill.selected').forEach(p => p.classList.remove('selected'));
-  document.querySelectorAll('.impact-btn.selected').forEach(b => b.classList.remove('selected'));
-  document.getElementById('f-loc').value = '';
-  document.getElementById('f-desc').value = '';
-  setTimeout(() => { showScreen('reports'); }, 1800);
+  if(banner) {
+    banner.style.display = 'block';
+    banner.className = 'form-banner success';
+    banner.textContent = 'Report submitted successfully!';
+    setTimeout(() => { showScreen('home'); }, 1500);
+  }
 }
 
-function filterNotif(status, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const items = document.querySelectorAll('.notif-item');
-  items.forEach(item => {
-    if(status === 'all') { item.style.display = 'flex'; return; }
-    item.style.display = item.dataset.status === status ? 'flex' : 'none';
+function filterNotif(status, el) {
+  document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  
+  document.querySelectorAll('.notif-item').forEach(item => {
+    if(status === 'all' || item.getAttribute('data-status') === status) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
   });
 }
 
-function loginWithGoogle() {
-  alert('🔐 Google Login - Redirecting to Google OAuth...');
-  showScreen('home');
-}
+// Unused placeholder methods to protect triggers
+function loginWithGoogle() { alert('Google Auth triggered.'); }
+function loginWithFacebook() { alert('Facebook Auth triggered.'); }
 
-function loginWithFacebook() {
-  alert('🔐 Facebook Login - Redirecting to Facebook OAuth...');
-  showScreen('home');
-}
-
-// ── DRAG TO RESIZE LOGIC ──
-const resizable = document.getElementById('resizableWrapper');
-const handle = document.getElementById('resizeHandle');
-let isResizing = false;
-
-handle.addEventListener('mousedown', function(e) {
-  e.preventDefault();
-  isResizing = true;
-  handle.classList.add('active');
-  document.body.style.cursor = 'ew-resize';
-  document.body.style.userSelect = 'none'; // Prevent highlighting text during active resize
-});
-
-window.addEventListener('mousemove', function(e) {
-  if (!isResizing) return;
-  
-  // Calculate width relative to the left sidebar starting point position
-  const sidebarOffset = resizable.getBoundingClientRect().left;
-  let newWidth = e.clientX - sidebarOffset;
-  
-  // Imposed boundary checks (min-width logic)
-  if (newWidth < 320) newWidth = 320;
-  
-  resizable.style.maxWidth = newWidth + 'px';
-});
-
-window.addEventListener('mouseup', function() {
-  if (isResizing) {
-    isResizing = false;
-    handle.classList.remove('active');
-    document.body.style.cursor = 'default';
-    document.body.style.userSelect = 'auto';
+// Optional UI click handler closure for testing window
+window.addEventListener('DOMContentLoaded', () => {
+  const handle = document.getElementById('resizeHandle');
+  const wrapper = document.getElementById('resizableWrapper');
+  if (handle && wrapper) {
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      window.addEventListener('mousemove', resize);
+      window.addEventListener('mouseup', stopResize);
+    });
+    function resize(e) {
+      const width = e.clientX - wrapper.getBoundingClientRect().left;
+      if (width > 320 && width < 1000) wrapper.style.width = width + 'px';
+    }
+    function stopResize() {
+      window.removeEventListener('mousemove', resize);
+    }
   }
 });
 </script>
